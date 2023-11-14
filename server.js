@@ -1,39 +1,38 @@
-const express = require('express');
-const fs = require('fs');
-const path = require('path');
+const express = require("express");
+const path = require("path");
+const { clog } = require("./Develop/middleware/clog.js");
+const api = require("./Develop/routes/index.js");
+
+const PORT = process.env.PORT || 3001;
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
-app.use(express.urlencoded({ extended: true }));
+// Import custom middleware, "cLog"
+app.use(clog);
+
+// Middleware for parsing JSON and urlencoded form data
 app.use(express.json());
-app.use(express.static('public'));
+app.use(express.urlencoded({ extended: true }));
+app.use("/api", api);
 
-// HTML Routes
-app.get('/notes', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'notes.html'));
-});
+// Set the static directory to 'Develop/public'
+app.use(express.static(path.join(__dirname, "Develop/public")));
 
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
+// GET Route for homepage
+app.get("/", (req, res) =>
+  res.sendFile(path.join(__dirname, "Develop/public/index.html"))
+);
 
-// API Routes
-app.get('/api/notes', (req, res) => {
-  const notes = JSON.parse(fs.readFileSync('db.json', 'utf8'));
-  res.json(notes);
-});
+// GET Route for feedback page
+app.get("/notes", (req, res) =>
+  res.sendFile(path.join(__dirname, "Develop/public/notes.html"))
+);
 
-app.post('/api/notes', (req, res) => {
-  const newNote = req.body;
-  const notes = JSON.parse(fs.readFileSync('db.json', 'utf8'));
-  notes.push(newNote);
-  fs.writeFileSync('db.json', JSON.stringify(notes));
-  res.json(newNote);
-});
+// Wildcard route to direct users to a 404 page
+// app.get('*', (req, res) =>
+//   res.sendFile(path.join(__dirname, 'Develop/public/pages/404.html'))
+// );
 
-
-// Start the server
-app.listen(PORT, () => {
-  console.log(`Server is running on PORT ${PORT}`);
-});
+app.listen(PORT, () =>
+  console.log(`App listening at http://localhost:${PORT} 🚀`)
+);

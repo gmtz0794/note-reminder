@@ -1,15 +1,15 @@
 const express = require('express');
-const router = express.Router();
+const app = express();
 const { v4: uuidv4 } = require('uuid');
 const { readFromFile, writeToFile, readAndAppend } = require('../helpers/fsUtils');
 
 // GET Route for retrieving all the notes
-router.get('/', (req, res) => {
+app.get('/public/notes', (req, res) => {
   readFromFile('./db/db.json').then((data) => res.json(JSON.parse(data)));
 });
 
 // GET Route for a specific note
-router.get('/:note_id', (req, res) => {
+app.get('/:note_id', (req, res) => {
   const noteId = req.params.note_id;
   readFromFile('./db/db.json')
     .then((data) => JSON.parse(data))
@@ -20,7 +20,7 @@ router.get('/:note_id', (req, res) => {
 });
 
 // DELETE Route for a specific note
-router.delete('/:note_id', (req, res) => {
+app.delete('/:note_id', (req, res) => {
   const noteId = req.params.note_id;
   readFromFile('./db/db.json')
     .then((data) => JSON.parse(data))
@@ -37,7 +37,7 @@ router.delete('/:note_id', (req, res) => {
 });
 
 // POST Route for a new note
-router.post('/', (req, res) => {
+app.post('/', (req, res) => {
   const { title, text } = req.body;
 
   if (req.body) {
@@ -54,4 +54,4 @@ router.post('/', (req, res) => {
   }
 });
 
-module.exports = router;
+module.exports = app;
